@@ -10,36 +10,34 @@ async function main() {
     const input = await readAndValidateInput();
     console.log('Input validation successful:', input);
 
-    // Get profile IDs for the given GCID
-    const profileIds = await getProfileIds(input.gcid, input.usersCount).catch((error) => {
+    // Get profile IDs based on input type
+    const profileIds = await getProfileIds(input.gcid, {
+      profileIds: input.profileIds,
+      usersCount: input.usersCount
+    }).catch((error) => {
       console.error('Error getting profile IDs:', error);
       return [];
     });
-    if (profileIds.length < input.usersCount) {
-      throw new Error(`Not enough users found for GCID ${input.gcid}. Required: ${input.usersCount}, Found: ${profileIds.length}`);
-    }
-    console.log(`Found ${profileIds.length} profile IDs`);
+    console.log(`Using ${profileIds.length} profile IDs`);
 
-    // Get font details for the given GCID
-    const fontDetailsResult = await getFontDetails(input.gcid, input.eventsCount);
-    
-    if (fontDetailsResult.styles.length === 0) {
-      throw new Error(`No font details found for GCID ${input.gcid}`);
-    }
+    // Get font details based on input type
+    const fontDetails = await getFontDetails({
+      styleIds: input.styleIds,
+      eventsCount: input.eventsCount
+    }).catch((error) => {
+      console.error('Error getting font details:', error);
+      return [];
+    });
 
-    if (fontDetailsResult.message) {
-      console.warn(fontDetailsResult.message);
-    }
-
-    console.log(`Found ${fontDetailsResult.availableUniqueStyles} unique font styles available`);
+    console.log(`Using ${fontDetails.length} font styles`);
 
     // Process events in parallel
     await processEventsInParallel({
       gcid: input.gcid,
       profileIds,
-      fontDetails: fontDetailsResult,
+      fontDetails,
       eventsCount: input.eventsCount,
-      shouldUseSyncAndDownloadEvent: input.shouldUseSyncAndDownloadEvent,
+      eventsUsageMap: input.eventsUsageMap,
     });
 
     console.log('Data generation completed successfully');

@@ -1,5 +1,4 @@
 import {
-  EVENTS,
   EVENT_SOURCES,
   EVENT_SUBTYPE,
   MIN_EVENT_COUNT,
@@ -13,13 +12,11 @@ const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)]
 // Helper function to get random number between min and max (inclusive)
 const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-// Get available events based on configuration
-const getAvailableEvents = (shouldUseSyncAndDownloadEvent) => {
-  const events = Object.values(EVENTS);
-  if (!shouldUseSyncAndDownloadEvent) {
-    return events.filter(event => event !== EVENTS.SYNC && event !== EVENTS.DOWNLOAD);
-  }
-  return events;
+// Get available events based on eventsUsageMap
+const getAvailableEvents = (eventsUsageMap) => {
+  return Object.entries(eventsUsageMap)
+    .filter(([_, isEnabled]) => isEnabled)
+    .map(([eventName]) => eventName);
 };
 
 
@@ -35,13 +32,12 @@ export const generateEvent = ({
   gcid,
   profileId,
   fontDetails,  // This is now a single font detail object, not an array
-  shouldUseSyncAndDownloadEvent,
+  eventsUsageMap,
 }) => {
-  console.log('fontDetails', fontDetails);
   // Validate font details before using them
   validateFontDetails(fontDetails);
 
-  const availableEvents = getAvailableEvents(shouldUseSyncAndDownloadEvent);
+  const availableEvents = getAvailableEvents(eventsUsageMap);
   const currentDate = new Date();
 
   return {
@@ -62,11 +58,10 @@ export const generateEvent = ({
 export const generateEventsForUser = ({
   gcid,
   profileId,
-  fontDetails,
+  fontDetails: styles,
   eventsCount,
-  shouldUseSyncAndDownloadEvent,
+  eventsUsageMap,
 }) => {
-  const { styles } = fontDetails;
   const events = [];
   
   // Shuffle the complete styles array to get random unique styles for this user
@@ -94,7 +89,7 @@ export const generateEventsForUser = ({
           family_id: fontStyle.family_id,
           font_name: fontStyle.name
         },
-        shouldUseSyncAndDownloadEvent,
+        eventsUsageMap,
       })
     );
   }

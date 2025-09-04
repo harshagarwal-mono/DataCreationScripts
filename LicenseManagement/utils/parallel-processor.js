@@ -34,7 +34,7 @@ export const processEventsInParallel = ({
   profileIds,
   fontDetails,
   eventsCount,
-  shouldUseSyncAndDownloadEvent,
+  eventsUsageMap,
 }) => {
   return new Promise(async (resolve, reject) => {
     let totalEventsProcessed = 0;
@@ -57,7 +57,7 @@ export const processEventsInParallel = ({
                 profileId,
                 fontDetails,
                 eventsCount,
-                shouldUseSyncAndDownloadEvent,
+                eventsUsageMap,
               });
 
               // Process events in batches

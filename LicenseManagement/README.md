@@ -43,23 +43,59 @@ BATCH_SIZE=1000
 PARALLEL_PROCESSING_UNITS=4
 ```
 
-2. Create an `license-management.json` file with the following structure inside inputs folder:
+2. Create a `license-management.json` file with the following structure inside inputs folder:
 
 ```json
 {
   "gcid": "your_gcid",
-  "usersCount": 1,
-  "eventsCount": 50,
-  "shouldUseSyncAndDownloadEvent": true
+  // User selection (either profileIds or usersCount)
+  "profileIds": ["profile1", "profile2"],  // Optional: specific profile IDs to use
+  "usersCount": 1,                         // Optional: number of random users to select
+  // Event/Style selection (either styleIds or eventsCount)
+  "styleIds": ["style1", "style2"],        // Optional: specific style IDs to use
+  "eventsCount": 50,                       // Optional: number of random styles to select
+  "eventsUsageMap": {                      // Optional: control which events to generate
+    "sync": true,
+    "download": true,
+    "temporaryActivation": true,
+    "autoActivation": true,
+    "permanentActivation": true
+  }
 }
 ```
 
 ### Input Parameters
 
 - `gcid` (required): The GCID to generate events for
-- `usersCount` (optional, default: 1): Number of users to generate events for
-- `eventsCount` (optional, default: 50): Number of events to generate per user
-- `shouldUseSyncAndDownloadEvent` (optional, default: true): Whether to include sync and download events
+
+User Selection (one of the following is required):
+- `profileIds`: Array of specific profile IDs to use (takes priority if both are provided)
+- `usersCount`: Number of random users to select
+
+Style Selection (one of the following is required):
+- `styleIds`: Array of specific font style IDs to use (takes priority if both are provided)
+- `eventsCount`: Number of random styles to select
+
+Event Type Control:
+- `eventsUsageMap` (optional): Object controlling which event types to generate
+  - Keys: Event type names (sync, download, temporaryActivation, etc.)
+  - Values: Boolean indicating whether to include that event type
+  - Default: All event types enabled (true)
+  - Example: Set `{"sync": false, "download": false}` to exclude sync and download events
+
+### Priority and Behavior
+
+1. User Selection:
+   - If `profileIds` is provided, those specific users will be used
+   - If only `usersCount` is provided, random users will be selected
+   - `profileIds` takes priority if both are provided
+
+2. Style Selection:
+   - If `styleIds` is provided, those specific styles will be used
+   - If only `eventsCount` is provided, random styles will be selected
+   - `styleIds` takes priority if both are provided
+
+This flexibility allows for both targeted testing with specific IDs and random generation with counts.
 
 ## Usage
 
@@ -88,6 +124,7 @@ The script generates a CSV report of all inserted events in the `outputs` direct
 - **Generated**: Real-time as events are inserted
 - **Fields**:
   - font_style_id
+  - style_name
   - family_id
   - source
   - subtype

@@ -9,39 +9,84 @@ export const validateCustomer = async (gcid) => {
   return rows[0].count > 0;
 };
 
-// Get profile IDs for a given GCID
-export const getProfileIds = async (gcid, limit) => {
+// Get profile IDs based on specific profile IDs
+const getProfileIdsBasedOnGivenProfileIds = async (gcid, profileIds) => {
+  const placeholders = profileIds.map(() => '?').join(',');
+  const [rows] = await cdlDbPool.execute(
+    `SELECT DISTINCT profile_id 
+     FROM user 
+     WHERE gcid = ? 
+     AND profile_id IN (${placeholders})`,
+    [gcid, ...profileIds]
+  );
+
+  const foundIds = rows.map(row => row.profile_id);
+  const missingIds = profileIds.filter(id => !foundIds.includes(id));
+  
+  if (missingIds.length > 0) {
+    throw new Error(`Some profile IDs were not found for GCID ${gcid}: ${missingIds.join(', ')}`);
+  }
+  
+  return foundIds;
+};
+
+// Get profile IDs based on count
+const getProfileIdsBasedOnCount = async (gcid, count) => {
   const [rows] = await cdlDbPool.query(
-    'SELECT DISTINCT profile_id FROM user WHERE gcid = ? LIMIT ' + Number(limit),
+    'SELECT DISTINCT profile_id FROM user WHERE gcid = ? LIMIT ' + Number(count),
     [gcid]
   );
   return rows.map(row => row.profile_id);
 };
 
-// Get font details for a given GCID
-export const getFontDetails = async (gcid, eventsPerUser) => {
-  // First, get the count of available unique styles
-  const [countResult] = await cdlDbPool.execute(
-    'SELECT COUNT(DISTINCT font_style_id) as uniqueCount FROM sync_download WHERE gcid = ?',
-    [gcid]
-  );
-  const availableUniqueStyles = countResult[0].uniqueCount;
+// Main function to get profile IDs
+export const getProfileIds = async (gcid, options) => {
+  return options.profileIds
+    ? getProfileIdsBasedOnGivenProfileIds(gcid, options.profileIds)
+    : getProfileIdsBasedOnCount(gcid, options.usersCount);
+};
 
-  // Fetch all unique styles
+// Get font details based on specific style IDs
+const getFontDetailsBasedOnGivenStyleIds = async (styleIds) => {
+  const placeholders = styleIds.map(() => '?').join(',');
   const [rows] = await cdlDbPool.execute(
+    `SELECT DISTINCT fs.font_style_id, fs.family_id, fs.name
+     FROM font_style fs
+     WHERE fs.font_style_id IN (${placeholders})`,
+    [...styleIds]
+  );
+
+  const foundIds = rows.map(row => row.font_style_id);
+  const missingIds = styleIds.filter(id => !foundIds.includes(id));
+  
+  if (missingIds.length > 0) {
+    throw new Error(`Some style IDs were not found: ${missingIds.join(', ')}`);
+  }
+
+  return rows;
+};
+
+// Get font details based on count
+const getFontDetailsBasedOnCount = async (count) => {
+  // Fetch all unique styles
+  const [rows] = await cdlDbPool.query(
     `SELECT DISTINCT sd.font_style_id, sd.family_id, fs.name
      FROM sync_download sd JOIN font_style fs ON sd.font_style_id = fs.font_style_id
-     WHERE gcid = ?`,
-    [gcid]
+     LIMIT ${count}`,
   );
 
-  return {
-    styles: rows,
-    availableUniqueStyles,
-    message: availableUniqueStyles < eventsPerUser
-      ? `Warning: Only ${availableUniqueStyles} unique styles available for ${eventsPerUser} events per user. Some styles will be reused.`
-      : null
-  };
+  if (rows.length < count) {
+    throw new Error(`Only ${rows.length} unique styles available. Some styles will be reused.`);
+  }
+
+  return rows;
+};
+
+// Main function to get font details
+export const getFontDetails = async (options) => {
+  return options.styleIds
+    ? getFontDetailsBasedOnGivenStyleIds(options.styleIds)
+    : getFontDetailsBasedOnCount(options.eventsCount);
 };
 
 // Insert events in batches and return inserted rows
