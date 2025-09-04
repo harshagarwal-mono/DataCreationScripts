@@ -1,13 +1,15 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(path.resolve());
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const rootDir = path.resolve(__dirname, '../');
 const inputsDir = path.resolve(rootDir, 'inputs');
 const outputsDir = path.resolve(rootDir, 'outputs');
 
 export const readJsonInput = async (inputFileName) => {
     const inputFilePath = path.resolve(inputsDir, inputFileName);
+    console.log('Reading input file:', inputFilePath);
     const fileContent = await fs.readFile(inputFilePath, 'utf-8');
     return JSON.parse(fileContent);
 };

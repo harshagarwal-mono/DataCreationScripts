@@ -1,2 +1,6 @@
 .env
 inputs/*.json
+outputs/*.csv
+outputs/*.json
+node_modules/
+.DS_Store

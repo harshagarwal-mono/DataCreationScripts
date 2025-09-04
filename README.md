@@ -36,13 +36,13 @@ The repository provides standardized utilities for handling inputs and outputs:
 ### Inputs
 - Place input files in the `/inputs` directory
 - JSON format for configuration files
-- See module-specific documentation for input file structure
+- See [inputs documentation](./inputs/README.md) for other information
 
 ### Outputs
 - Generated files are stored in the `/outputs` directory
 - CSV reports for detailed event data
 - JSON outputs for structured data
-- See [outputs documentation](./outputs/README.md) for file formats
+- See [outputs documentation](./outputs/README.md) for other information
 
 ## Adding New Scripts
 

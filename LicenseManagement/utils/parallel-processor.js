@@ -98,5 +98,4 @@ export const processEventsInParallel = ({
       reject(error);
     }
   });
-  });
-};
+}

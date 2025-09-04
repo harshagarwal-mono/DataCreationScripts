@@ -11,11 +11,11 @@ export const validateCustomer = async (gcid) => {
 
 // Get profile IDs for a given GCID
 export const getProfileIds = async (gcid, limit) => {
-  const [rows] = await cdlDbPool.execute(
-    'SELECT DISTINCT profileId FROM user WHERE gcid = ? LIMIT ?',
-    [gcid, limit]
+  const [rows] = await cdlDbPool.query(
+    'SELECT DISTINCT profile_id FROM user WHERE gcid = ? LIMIT ' + Number(limit),
+    [gcid]
   );
-  return rows.map(row => row.profileId);
+  return rows.map(row => row.profile_id);
 };
 
 // Get font details for a given GCID

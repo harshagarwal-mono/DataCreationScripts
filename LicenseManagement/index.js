@@ -11,7 +11,10 @@ async function main() {
     console.log('Input validation successful:', input);
 
     // Get profile IDs for the given GCID
-    const profileIds = await getProfileIds(input.gcid, input.usersCount);
+    const profileIds = await getProfileIds(input.gcid, input.usersCount).catch((error) => {
+      console.error('Error getting profile IDs:', error);
+      return [];
+    });
     if (profileIds.length < input.usersCount) {
       throw new Error(`Not enough users found for GCID ${input.gcid}. Required: ${input.usersCount}, Found: ${profileIds.length}`);
     }
