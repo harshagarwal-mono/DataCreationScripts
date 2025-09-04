@@ -24,18 +24,15 @@ const getAvailableEvents = (shouldUseSyncAndDownloadEvent) => {
 export const generateEvent = ({
   gcid,
   profileId,
-  fontDetails,
+  fontDetails,  // This is now a single font detail object, not an array
   shouldUseSyncAndDownloadEvent,
 }) => {
   const availableEvents = getAvailableEvents(shouldUseSyncAndDownloadEvent);
   const currentDate = new Date();
 
-  // Get random font details
-  const { font_style_id, family_id } = getRandomItem(fontDetails);
-
   return {
-    font_style_id,
-    family_id,
+    font_style_id: fontDetails.font_style_id,
+    family_id: fontDetails.family_id,
     source: getRandomItem(Object.values(EVENT_SOURCES)),
     subtype: EVENT_SUBTYPE,
     event_type: getRandomItem(availableEvents),
@@ -54,12 +51,34 @@ export const generateEventsForUser = ({
   eventsCount,
   shouldUseSyncAndDownloadEvent,
 }) => {
-  return Array.from({ length: eventsCount }, () =>
-    generateEvent({
-      gcid,
-      profileId,
-      fontDetails,
-      shouldUseSyncAndDownloadEvent,
-    })
-  );
+  const { styles } = fontDetails;
+  const events = [];
+  
+  // Shuffle the complete styles array to get random unique styles for this user
+  const shuffledStyles = [...styles]
+    .sort(() => Math.random() - 0.5);
+  
+  // For each event, use a unique style if available, otherwise reuse from the beginning
+  for (let i = 0; i < eventsCount; i++) {
+    // Use modulo to wrap around to the beginning if we need more styles than available
+    const styleIndex = i % styles.length;
+    
+    // If we're starting to reuse styles, log a warning
+    if (i >= styles.length) {
+      console.log(`Warning: User ${profileId} is reusing styles after ${styles.length} events`);
+    }
+    
+    const fontStyle = shuffledStyles[styleIndex];
+    
+    events.push(
+      generateEvent({
+        gcid,
+        profileId,
+        fontDetails: { font_style_id: fontStyle.font_style_id, family_id: fontStyle.family_id },
+        shouldUseSyncAndDownloadEvent,
+      })
+    );
+  }
+
+  return events;
 };

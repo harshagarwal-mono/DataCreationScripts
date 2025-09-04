@@ -18,17 +18,23 @@ async function main() {
     console.log(`Found ${profileIds.length} profile IDs`);
 
     // Get font details for the given GCID
-    const fontDetails = await getFontDetails(input.gcid, input.eventsCount);
-    if (fontDetails.length === 0) {
+    const fontDetailsResult = await getFontDetails(input.gcid, input.eventsCount);
+    
+    if (fontDetailsResult.styles.length === 0) {
       throw new Error(`No font details found for GCID ${input.gcid}`);
     }
-    console.log(`Found ${fontDetails.length} font details`);
+
+    if (fontDetailsResult.message) {
+      console.warn(fontDetailsResult.message);
+    }
+
+    console.log(`Found ${fontDetailsResult.availableUniqueStyles} unique font styles available`);
 
     // Process events in parallel
     await processEventsInParallel({
       gcid: input.gcid,
       profileIds,
-      fontDetails,
+      fontDetails: fontDetailsResult,
       eventsCount: input.eventsCount,
       shouldUseSyncAndDownloadEvent: input.shouldUseSyncAndDownloadEvent,
     });

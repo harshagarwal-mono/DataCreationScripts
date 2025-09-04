@@ -19,15 +19,32 @@ export const getProfileIds = async (gcid, limit) => {
 };
 
 // Get font details for a given GCID
-export const getFontDetails = async (gcid, limit) => {
-  const [rows] = await cdlDbPool.execute(
-    'SELECT DISTINCT font_style_id, family_id FROM sync_download WHERE gcid = ? LIMIT ?',
-    [gcid, limit]
+export const getFontDetails = async (gcid, eventsPerUser) => {
+  // First, get the count of available unique styles
+  const [countResult] = await cdlDbPool.execute(
+    'SELECT COUNT(DISTINCT font_style_id) as uniqueCount FROM sync_download WHERE gcid = ?',
+    [gcid]
   );
-  return rows;
+  const availableUniqueStyles = countResult[0].uniqueCount;
+
+  // Fetch all unique styles
+  const [rows] = await cdlDbPool.execute(
+    `SELECT DISTINCT font_style_id, family_id
+     FROM sync_download 
+     WHERE gcid = ?`,
+    [gcid]
+  );
+
+  return {
+    styles: rows,
+    availableUniqueStyles,
+    message: availableUniqueStyles < eventsPerUser
+      ? `Warning: Only ${availableUniqueStyles} unique styles available for ${eventsPerUser} events per user. Some styles will be reused.`
+      : null
+  };
 };
 
-// Insert events in batches
+// Insert events in batches and return inserted rows
 export const insertEvents = async (events) => {
   const query = `
     INSERT INTO sync_download 
@@ -49,5 +66,18 @@ export const insertEvents = async (events) => {
   ]);
 
   const [result] = await cdlDbPool.query(query, [values]);
-  return result;
+  
+  // Return the inserted events for CSV output
+  return events.map(event => ({
+    font_style_id: event.font_style_id,
+    family_id: event.family_id,
+    source: event.source,
+    subtype: event.subtype,
+    event_type: event.event_type,
+    profile_id: event.profile_id,
+    gcid: event.gcid,
+    event_date: event.event_date.toISOString(),
+    event_count: event.event_count,
+    load_date: event.load_date.toISOString()
+  }));
 };

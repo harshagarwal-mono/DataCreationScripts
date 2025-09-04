@@ -10,6 +10,7 @@ This script generates synthetic license management events data for testing and d
 - Input validation with Zod
 - Environment-based configuration
 - Progress tracking and error handling
+- Real-time CSV report generation
 
 ## Prerequisites
 
@@ -73,7 +74,29 @@ The script will:
 2. Check if the GCID exists in the database
 3. Fetch required user profiles and font details
 4. Generate and insert events in parallel batches
-5. Display progress and completion status
+5. Create CSV report with inserted events
+6. Display progress and completion status
+
+## Output
+
+The script generates a CSV report of all inserted events in the `outputs` directory. The report is generated in real-time as events are inserted, ensuring efficient memory usage and immediate feedback.
+
+### Output File
+- **File Name**: `license-events.csv`
+- **Location**: `/outputs` directory
+- **Format**: CSV with headers
+- **Generated**: Real-time as events are inserted
+- **Fields**:
+  - font_style_id
+  - family_id
+  - source
+  - subtype
+  - event_type
+  - profile_id
+  - gcid
+  - event_date
+  - event_count
+  - load_date
 
 ## Event Types
 

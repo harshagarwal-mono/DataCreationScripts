@@ -1,0 +1,43 @@
+import fs from 'fs/promises';
+import path from 'path';
+
+const __dirname = path.dirname(path.resolve());
+const rootDir = path.resolve(__dirname, '../');
+const inputsDir = path.resolve(rootDir, 'inputs');
+const outputsDir = path.resolve(rootDir, 'outputs');
+
+export const readJsonInput = async (inputFileName) => {
+    const inputFilePath = path.resolve(inputsDir, inputFileName);
+    const fileContent = await fs.readFile(inputFilePath, 'utf-8');
+    return JSON.parse(fileContent);
+};
+
+export const writeJsonOutput = async (outputFileName, data) => {
+    const outputFilePath = path.resolve(outputsDir, outputFileName);
+    await fs.writeFile(outputFilePath, JSON.stringify(data, null, 2));
+};
+
+const ensureFileDeleted = async (filePath) => {
+    try {
+        await fs.access(filePath);
+        await fs.unlink(filePath);
+        console.log(`Deleted existing file: ${filePath}`);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            throw error;
+        }
+    }
+};
+
+export const writeCSVHeader = async (outputFileName, headers) => {
+    const outputFilePath = path.resolve(outputsDir, outputFileName);
+    await ensureFileDeleted(outputFilePath);
+    const headerContent = headers.join(',') + '\n';
+    await fs.writeFile(outputFilePath, headerContent);
+};
+
+export const appendCSVRows = async (outputFileName, data) => {
+    const outputFilePath = path.resolve(outputsDir, outputFileName);
+    const csvContent = data.map(row => Object.values(row).join(',')).join('\n') + '\n';
+    await fs.appendFile(outputFilePath, csvContent);
+};
