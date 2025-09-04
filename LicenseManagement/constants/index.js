@@ -16,5 +16,3 @@ export const EVENT_SUBTYPE = 'inventory';
 
 export const MIN_EVENT_COUNT = 1;
 export const MAX_EVENT_COUNT = 10;
-
-export const MAX_TOTAL_EVENTS = 10000; // Maximum allowed multiplication of usersCount and eventsCount
