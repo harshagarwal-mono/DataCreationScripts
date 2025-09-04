@@ -5,6 +5,7 @@ import {
   MIN_EVENT_COUNT,
   MAX_EVENT_COUNT,
 } from '../constants/index.js';
+import { fontDetailsSchema } from '../schemas/font.js';
 
 // Helper function to get random item from array
 const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
@@ -21,18 +22,32 @@ const getAvailableEvents = (shouldUseSyncAndDownloadEvent) => {
   return events;
 };
 
+
+const validateFontDetails = (fontDetails) => {
+  try {
+    fontDetailsSchema.parse(fontDetails);
+  } catch (error) {
+    throw new Error(`Invalid font details: ${error.errors[0].message}`);
+  }
+};
+
 export const generateEvent = ({
   gcid,
   profileId,
   fontDetails,  // This is now a single font detail object, not an array
   shouldUseSyncAndDownloadEvent,
 }) => {
+  console.log('fontDetails', fontDetails);
+  // Validate font details before using them
+  validateFontDetails(fontDetails);
+
   const availableEvents = getAvailableEvents(shouldUseSyncAndDownloadEvent);
   const currentDate = new Date();
 
   return {
     font_style_id: fontDetails.font_style_id,
     family_id: fontDetails.family_id,
+    style_name: fontDetails.font_name,
     source: getRandomItem(Object.values(EVENT_SOURCES)),
     subtype: EVENT_SUBTYPE,
     event_type: getRandomItem(availableEvents),
@@ -74,7 +89,11 @@ export const generateEventsForUser = ({
       generateEvent({
         gcid,
         profileId,
-        fontDetails: { font_style_id: fontStyle.font_style_id, family_id: fontStyle.family_id },
+        fontDetails: {
+          font_style_id: fontStyle.font_style_id,
+          family_id: fontStyle.family_id,
+          font_name: fontStyle.name
+        },
         shouldUseSyncAndDownloadEvent,
       })
     );

@@ -38,8 +38,21 @@ export const writeCSVHeader = async (outputFileName, headers) => {
     await fs.writeFile(outputFilePath, headerContent);
 };
 
-export const appendCSVRows = async (outputFileName, data) => {
+export const appendCSVRows = async (outputFileName, data, columnOrder) => {
+    if (!columnOrder || !Array.isArray(columnOrder)) {
+        throw new Error('Column order must be provided as an array');
+    }
+
     const outputFilePath = path.resolve(outputsDir, outputFileName);
-    const csvContent = data.map(row => Object.values(row).join(',')).join('\n') + '\n';
+    const csvContent = data.map(row => {
+        // Ensure data is in the same order as headers
+        const orderedValues = columnOrder.map(column => {
+            const value = row[column];
+            // Handle undefined/null values
+            return value === undefined || value === null ? '' : value;
+        });
+        return orderedValues.join(',');
+    }).join('\n') + '\n';
+    
     await fs.appendFile(outputFilePath, csvContent);
 };

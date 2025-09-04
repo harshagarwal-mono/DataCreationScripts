@@ -29,8 +29,8 @@ export const getFontDetails = async (gcid, eventsPerUser) => {
 
   // Fetch all unique styles
   const [rows] = await cdlDbPool.execute(
-    `SELECT DISTINCT font_style_id, family_id
-     FROM sync_download 
+    `SELECT DISTINCT sd.font_style_id, sd.family_id, fs.name
+     FROM sync_download sd JOIN font_style fs ON sd.font_style_id = fs.font_style_id
      WHERE gcid = ?`,
     [gcid]
   );
@@ -71,6 +71,7 @@ export const insertEvents = async (events) => {
   return events.map(event => ({
     font_style_id: event.font_style_id,
     family_id: event.family_id,
+    style_name: event.style_name,
     source: event.source,
     subtype: event.subtype,
     event_type: event.event_type,

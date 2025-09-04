@@ -17,6 +17,7 @@ const processBatch = async (events) => {
 
 const CSV_HEADERS = [
   'font_style_id',
+  'style_name',
   'family_id',
   'source',
   'subtype',
@@ -72,7 +73,7 @@ export const processEventsInParallel = ({
           // Process each batch and write to CSV
           mergeMap(async (batch) => {
             const insertedEvents = await processBatch(batch);
-            await appendCSVRows('license-events.csv', insertedEvents);
+            await appendCSVRows('license-events.csv', insertedEvents, CSV_HEADERS);
             return batch.length;
           }),
           // Track progress
