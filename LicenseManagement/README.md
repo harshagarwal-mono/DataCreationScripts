@@ -40,12 +40,9 @@ CDL_DATABASE_PASSWORD=your_password
 # Batch Processing Configuration
 BATCH_SIZE=1000
 PARALLEL_PROCESSING_UNITS=4
-
-# Input Configuration
-INPUT_FILE_PATH=./input.json
 ```
 
-2. Create an `input.json` file with the following structure:
+2. Create an `license-management.json` file with the following structure inside inputs folder:
 
 ```json
 {

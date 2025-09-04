@@ -21,9 +21,6 @@ const envSchema = z.object({
   // Batch Processing Configuration
   BATCH_SIZE: z.string().transform(Number).default('1000'),
   PARALLEL_PROCESSING_UNITS: z.string().transform(Number).default('4'),
-
-  // Input Configuration
-  INPUT_FILE_PATH: z.string().default('./input.json'),
 });
 
 // Validate and transform environment variables

@@ -1,12 +1,18 @@
 import fs from 'fs/promises';
+import path from 'path';
 import env from '../../config/env.js';
 import { validateInput } from '../schemas/input.js';
 import { validateCustomer } from '../db/index.js';
 
+const __dirname = path.dirname(path.resolve());
+const rootDir = path.resolve(__dirname, '../../');
+const inputsDir = path.resolve(rootDir, 'inputs');
+
 export const readAndValidateInput = async () => {
+  const inputFilePath = path.resolve(inputsDir, 'license-management.json');
   try {
-    // Read input file
-    const fileContent = await fs.readFile(env.INPUT_FILE_PATH, 'utf-8');
+    // Read input file 
+    const fileContent = await fs.readFile(inputFilePath, 'utf-8');
     const inputData = JSON.parse(fileContent);
 
     // Validate input schema
@@ -24,7 +30,7 @@ export const readAndValidateInput = async () => {
     return data;
   } catch (error) {
     if (error.code === 'ENOENT') {
-      throw new Error(`Input file not found at ${env.INPUT_FILE_PATH}`);
+      throw new Error(`Input file not found at ${inputFilePath}`);
     }
     throw error;
   }
