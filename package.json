@@ -1,0 +1,20 @@
+{
+  "name": "data-creation-scripts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node LicenseManagement/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["license", "management", "data", "generation"],
+  "author": "",
+  "license": "ISC",
+  "description": "Scripts for generating license management data",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.9.2",
+    "rxjs": "^7.8.1",
+    "zod": "^3.22.4"
+  }
+}
