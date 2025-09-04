@@ -86,13 +86,21 @@ Event Type Control:
 ### Priority and Behavior
 
 1. User Selection:
-   - If `profileIds` is provided, those specific users will be used
-   - If only `usersCount` is provided, random users will be selected
+   - If `profileIds` is provided:
+     - Those specific users will be used
+     - `usersCount` will be automatically set to the number of provided profileIds
+     - Any manually provided `usersCount` will be overridden
+   - If only `usersCount` is provided:
+     - Random users will be selected up to the specified count
    - `profileIds` takes priority if both are provided
 
 2. Style Selection:
-   - If `styleIds` is provided, those specific styles will be used
-   - If only `eventsCount` is provided, random styles will be selected
+   - If `styleIds` is provided:
+     - Those specific styles will be used
+     - `eventsCount` will be automatically set to the number of provided styleIds
+     - Any manually provided `eventsCount` will be overridden
+   - If only `eventsCount` is provided:
+     - Random styles will be selected up to the specified count
    - `styleIds` takes priority if both are provided
 
 This flexibility allows for both targeted testing with specific IDs and random generation with counts.

@@ -46,7 +46,14 @@ export const inputSchema = z.object({
     message: 'Either styleIds or eventsCount must be provided',
     path: ['styleIds', 'eventsCount'],
   }
-);
+)
+.transform((data) => ({
+  ...data,
+  // Set usersCount to profileIds length if profileIds is provided
+  usersCount: data.profileIds ? data.profileIds.length : data.usersCount,
+  // Set eventsCount to styleIds length if styleIds is provided
+  eventsCount: data.styleIds ? data.styleIds.length : data.eventsCount
+}));
 
 export const validateInput = (input) => {
   try {
